@@ -34,6 +34,14 @@ EOF
 
   let(:command) { BoshConfigResource::CheckCommand.new(bosh, writer) }
 
+  context "whenever" do
+    it "fails because it's not implemented" do
+      expect{command.run(request)}.to raise_error("not implemented")
+
+    end
+  end
+
+=begin
   context "when the source does have a target" do
     before do
       allow(bosh).to receive(:target).and_return("bosh-target")
@@ -125,4 +133,5 @@ EOF
       expect(output).to eq([])
     end
   end
+=end
 end

@@ -16,6 +16,7 @@ describe "In Command" do
     end
   end
 
+=begin
   context "when the version is given on STDIN" do
     let(:request) {
       {
@@ -107,6 +108,27 @@ describe "In Command" do
 
     it "fails" do
       expect { run_command }.to raise_error("no version specified")
+    end
+  end
+=end
+
+  context "whenever" do
+    let(:request) {
+      {
+          "source" => {
+              "target" => "http://bosh.example.com",
+              "username" => "bosh-username",
+              "password" => "bosh-password",
+              "type" => "runtime-config",
+          },
+          "version" => {
+              "manifest_sha1" => "abcdef"
+          }
+      }
+    }
+
+    it "fails because it's not implemented" do
+      expect { run_command }.to raise_error("not implemented")
     end
   end
 end

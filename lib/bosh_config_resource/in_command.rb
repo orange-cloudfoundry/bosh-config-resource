@@ -9,6 +9,8 @@ module BoshConfigResource
     end
 
     def run(working_dir, request)
+      raise "not implemented"
+=begin
       raise "no version specified" unless request["version"]
 
       if bosh.target != ""
@@ -24,6 +26,7 @@ module BoshConfigResource
       writer.puts({
         "version" => request.fetch("version")
       }.to_json)
+=end
     end
 
     private
