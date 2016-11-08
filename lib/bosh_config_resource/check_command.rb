@@ -10,7 +10,7 @@ module BoshConfigResource
     def run(request)
       versions = []
 
-      STDERR.puts request
+      :err.puts request
 
       if bosh.target != ""
         Dir.mktmpdir do |working_dir|
