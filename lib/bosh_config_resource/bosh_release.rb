@@ -4,21 +4,14 @@ require "zlib"
 
 require "archive/tar/minitar"
 
-module BoshDeploymentResource
-  class BoshStemcell
-    attr_reader :path
-
+module BoshConfigResource
+  class BoshRelease
     def initialize(path)
       @path = path
     end
 
     def name
       manifest.fetch("name")
-    end
-
-    def os
-      # old stemcells don't have os
-      manifest["os"]
     end
 
     def version
@@ -36,15 +29,17 @@ module BoshDeploymentResource
 
       Archive::Tar::Minitar::Reader.open(tgz) do |reader|
         reader.each_entry do |entry|
-          next unless File.basename(entry.full_name) == "stemcell.MF"
+          next unless File.basename(entry.full_name) == "release.MF"
 
           return entry.read
         end
       end
 
-      raise "could not find stemcell.MF"
+      raise "could not find release.MF"
     ensure
       tgz.close if tgz
     end
+
+    attr_reader :path
   end
 end

@@ -1,7 +1,7 @@
 require "spec_helper"
 
-describe BoshDeploymentResource::CommandRunner do
-  let (:command_runner) { BoshDeploymentResource::CommandRunner.new }
+describe BoshConfigResource::CommandRunner do
+  let (:command_runner) { BoshConfigResource::CommandRunner.new }
 
   describe '.run' do
     it 'takes a command and an environment and spanws a process' do
@@ -33,23 +33,15 @@ describe BoshDeploymentResource::CommandRunner do
   end
 end
 
-describe BoshDeploymentResource::Bosh do
+describe BoshConfigResource::Bosh do
   let(:target) { "http://bosh.example.com" }
-  let(:auth) { BoshDeploymentResource::Auth.parse({"username" => username, "password" => password}) }
+  let(:auth) { BoshConfigResource::Auth.parse({"username" => username, "password" => password}) }
   let(:username) { "bosh-userΩΩΩΩ" }
   let(:password) { "bosh-password!#%&#(*" }
-  let(:command_runner) { instance_double(BoshDeploymentResource::CommandRunner) }
+  let(:command_runner) { instance_double(BoshConfigResource::CommandRunner) }
 
-  let(:bosh) { BoshDeploymentResource::Bosh.new(target, ca_cert, auth, command_runner) }
-  let(:ca_cert) { BoshDeploymentResource::CaCert.new(nil) }
-
-  describe ".upload_stemcell" do
-    it "runs the command to upload a stemcell" do
-      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} upload stemcell /path/to/a/stemcell.tgz --skip-if-exists}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password }, {})
-
-      bosh.upload_stemcell("/path/to/a/stemcell.tgz")
-    end
-  end
+  let(:bosh) { BoshConfigResource::Bosh.new(target, ca_cert, auth, command_runner) }
+  let(:ca_cert) { BoshConfigResource::CaCert.new(nil) }
 
   describe ".upload_release" do
     it "runs the command to upload a release" do
@@ -59,45 +51,30 @@ describe BoshDeploymentResource::Bosh do
     end
   end
 
-  describe ".deploy" do
-    it "runs the command to deploy" do
-      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} -d /path/to/a/manifest.yml deploy}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password }, {})
+  describe ".update_runtime_config" do
+    it "runs the command to set runtime config" do
+      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} update runtime-config /path/to/a/manifest.yml}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password }, {})
 
-      bosh.deploy("/path/to/a/manifest.yml")
-    end
-
-    it "runs the command to deploy with --no-redact" do
-      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} -d /path/to/a/manifest.yml deploy --no-redact}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password}, {})
-      bosh.deploy("/path/to/a/manifest.yml",true)
+      bosh.update_runtime_config("/path/to/a/manifest.yml")
     end
   end
 
+  describe ".download_runtime_config" do
+    it "runs the command to download runtime config" do
+      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} runtime-config > /path/to/a/manifest.yml}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password }, {})
 
-  describe ".director_uuid" do
-    it "collects the output of status --uuid" do
-      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} status --uuid}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password }, anything) do |_, _, opts|
-        opts[:out].puts "abcdef\n"
-      end
-
-      expect(bosh.director_uuid).to eq("abcdef")
-    end
-  end
-
-  describe ".download_manifest" do
-    it "downloads the manifest" do
-      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} download manifest test_deployment manifest_path}, { "BOSH_USER" => username, "BOSH_PASSWORD" => password }, {})
-      bosh.download_manifest("test_deployment", "manifest_path")
+      bosh.download_runtime_config("/path/to/a/manifest.yml")
     end
   end
 
   context "when ca_cert_path is provided" do
-    let(:ca_cert) { BoshDeploymentResource::CaCert.new("fake-ca-cert-content") }
+    let(:ca_cert) { BoshConfigResource::CaCert.new("fake-ca-cert-content") }
     after { ca_cert.cleanup }
 
     it "passes ca_cert to bosh cli" do
-      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} --ca-cert #{ca_cert.path} -d /path/to/a/manifest.yml deploy}, anything, anything)
+      expect(command_runner).to receive(:run).with(%{bosh -n --color -t #{target} --ca-cert #{ca_cert.path} update runtime-config /path/to/a/manifest.yml}, anything, anything)
 
-      bosh.deploy("/path/to/a/manifest.yml")
+      bosh.update_runtime_config("/path/to/a/manifest.yml")
     end
   end
 end

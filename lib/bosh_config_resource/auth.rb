@@ -1,4 +1,4 @@
-module BoshDeploymentResource
+module BoshConfigResource
   class Auth
     def self.parse(options)
       default_auth = options["username"] || options["password"]

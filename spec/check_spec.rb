@@ -4,14 +4,14 @@ require "json"
 require "open3"
 
 describe "Check Command" do
-  let(:bosh) { instance_double(BoshDeploymentResource::Bosh, download_manifest: nil) }
+  let(:bosh) { instance_double(BoshConfigResource::Bosh, download_runtime_config: nil) }
   let(:writer) { StringIO.new }
   let(:request) {
     {
       "source" => {
         "username" => "bosh-username",
         "password" => "bosh-password",
-        "deployment" => "bosh-deployment",
+        "type" => "runtime-config",
       },
       "version" => {
         "manifest_sha1" => "some-sha"
@@ -32,15 +32,15 @@ foo:
 EOF
   }
 
-  let(:command) { BoshDeploymentResource::CheckCommand.new(bosh, writer) }
+  let(:command) { BoshConfigResource::CheckCommand.new(bosh, writer) }
 
   context "when the source does have a target" do
     before do
       allow(bosh).to receive(:target).and_return("bosh-target")
     end
 
-    it "downloads the manifest" do
-      expect(bosh).to receive(:download_manifest).with("bosh-deployment", anything) do |_, manifest_path|
+    it "downloads the config" do
+      expect(bosh).to receive(:download_runtime_config).with(anything) do |manifest_path|
         File.open(manifest_path, 'w+') do |f|
           f.write(manifest_from_bosh)
         end
@@ -56,7 +56,7 @@ EOF
       end
 
       it "outputs the version as the sha of the values of the sorted, parsed manifest" do
-        allow(bosh).to receive(:download_manifest) do |_, path|
+        allow(bosh).to receive(:download_runtime_config) do |path|
           File.open(path, 'w+') do |f|
             f.write(manifest_from_bosh)
           end
@@ -92,35 +92,9 @@ EOF
       end
 
       it "outputs an empty array" do
-        allow(bosh).to receive(:download_manifest) do |_, path|
+        allow(bosh).to receive(:download_runtime_config) do |path|
           File.open(path, 'w+') do |f|
             f.write(manifest_from_bosh)
-          end
-        end
-
-        command.run(request)
-
-        writer.rewind
-        output = JSON.parse(writer.read)
-        expect(output).to eq([])
-      end
-
-      it "performs a content-aware shasum" do
-        reordered_but_equivalent_manifest_from_bosh = <<EOF
----
-foo:
-  bar: baz
-qux:
-  corge: grault
-wiff:
-- a
-- b
-- c
-EOF
-
-        allow(bosh).to receive(:download_manifest) do |_, path|
-          File.open(path, 'w+') do |f|
-            f.write(reordered_but_equivalent_manifest_from_bosh)
           end
         end
 
@@ -139,7 +113,7 @@ EOF
     end
 
     it "does not try to download the manifest" do
-      expect(bosh).not_to receive(:download_manifest)
+      expect(bosh).not_to receive(:download_runtime_config)
       command.run(request)
     end
 

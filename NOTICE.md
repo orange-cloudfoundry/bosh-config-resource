@@ -1,4 +1,4 @@
-Copyright 2015-2016 Alex Suraci & Chris Brown
+Copyright 2016 Julian Hjortshoj Paul Warren
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the

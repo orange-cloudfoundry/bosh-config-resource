@@ -1,6 +1,6 @@
 require "json"
 
-module BoshDeploymentResource
+module BoshConfigResource
   class CheckCommand
     def initialize(bosh, writer=STDOUT)
       @bosh = bosh
@@ -8,15 +8,13 @@ module BoshDeploymentResource
     end
 
     def run(request)
-      deployment_name = request.fetch("source").fetch("deployment")
-
       versions = []
 
       if bosh.target != ""
         Dir.mktmpdir do |working_dir|
           manifest_path = File.join(working_dir, "manifest.yml")
-          bosh.download_manifest(deployment_name, manifest_path)
-          manifest = BoshDeploymentResource::BoshManifest.new(manifest_path)
+          bosh.download_runtime_config(manifest_path)
+          manifest = BoshConfigResource::BoshConfig.new(manifest_path)
           manifest_sha = manifest.shasum
 
           existing_version = request.fetch("version")

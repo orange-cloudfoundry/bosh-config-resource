@@ -1,4 +1,4 @@
-module BoshDeploymentResource
+module BoshConfigResource
   class CaCert
     def initialize(ca_cert_contents)
       @ca_cert_contents = ca_cert_contents

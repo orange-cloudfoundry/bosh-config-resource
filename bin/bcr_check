@@ -2,23 +2,23 @@
 
 require "json"
 
-require 'bosh_deployment_resource'
+require 'bosh_config_resource'
 
 request = JSON.parse(STDIN.read)
 
 source = request.fetch("source")
 target = source["target"] || ""
 
-auth = BoshDeploymentResource::Auth.parse(source)
-ca_cert = BoshDeploymentResource::CaCert.new(source["ca_cert"])
+auth = BoshConfigResource::Auth.parse(source)
+ca_cert = BoshConfigResource::CaCert.new(source["ca_cert"])
 
-bosh = BoshDeploymentResource::Bosh.new(
+bosh = BoshConfigResource::Bosh.new(
   target,
   ca_cert,
   auth
 )
 
-command = BoshDeploymentResource::CheckCommand.new(bosh)
+command = BoshConfigResource::CheckCommand.new(bosh)
 
 begin
   command.run(request)

@@ -1,8 +1,8 @@
 require "spec_helper"
 
-describe BoshDeploymentResource::Auth do
+describe BoshConfigResource::Auth do
   def parse(options)
-    BoshDeploymentResource::Auth.parse(options)
+    BoshConfigResource::Auth.parse(options)
   end
 
   describe "parse" do

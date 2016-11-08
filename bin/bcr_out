@@ -2,7 +2,7 @@
 
 require "json"
 
-require 'bosh_deployment_resource'
+require 'bosh_config_resource'
 
 working_dir = ARGV[0]
 request = JSON.parse(STDIN.read)
@@ -19,19 +19,19 @@ target =
     source.fetch("target")
   end
 
-auth = BoshDeploymentResource::Auth.parse(source)
-ca_cert = BoshDeploymentResource::CaCert.new(source["ca_cert"])
+auth = BoshConfigResource::Auth.parse(source)
+ca_cert = BoshConfigResource::CaCert.new(source["ca_cert"])
 
-bosh = BoshDeploymentResource::Bosh.new(
+bosh = BoshConfigResource::Bosh.new(
   target,
   ca_cert,
   auth
 )
-manifest = BoshDeploymentResource::BoshManifest.new(
+manifest = BoshConfigResource::BoshConfig.new(
   File.expand_path(params.fetch("manifest"), working_dir)
 )
 
-command = BoshDeploymentResource::OutCommand.new(bosh, manifest)
+command = BoshConfigResource::OutCommand.new(bosh, manifest)
 
 begin
   command.run(working_dir, request)

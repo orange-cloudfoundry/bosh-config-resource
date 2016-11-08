@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe BoshDeploymentResource::CaCert do
+describe BoshConfigResource::CaCert do
   subject(:ca_cert) { described_class.new("fake-ca-cert-contents") }
 
   describe "path" do

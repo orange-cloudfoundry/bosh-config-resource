@@ -1,10 +1,10 @@
 # coding: utf-8
 
 Gem::Specification.new do |spec|
-  spec.name          = "bosh_deployment_resource"
+  spec.name          = "bosh_config_resource"
   spec.version       = "0.0.1"
-  spec.summary       = "a gem for things"
-  spec.authors       = ["Chris Brown", "Alex Suraci"]
+  spec.summary       = "a gem for other things"
+  spec.authors       = ["Paul Warren", "Julian Hjortshoj"]
 
   spec.files         = Dir.glob("{lib,bin}/**/*")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }

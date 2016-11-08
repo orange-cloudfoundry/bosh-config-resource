@@ -1,7 +1,7 @@
 require 'digest'
 require 'time'
 
-module BoshDeploymentResource
+module BoshConfigResource
   class OutCommand
     def initialize(bosh, manifest, writer=STDOUT)
       @bosh = bosh
@@ -12,23 +12,7 @@ module BoshDeploymentResource
     def run(working_dir, request)
       validate! request
 
-      bosh.cleanup if request.fetch("params")["cleanup"].equal? true
-      stemcells = []
       releases = []
-
-      manifest.fallback_director_uuid(bosh.director_uuid)
-
-      stemcells = find_stemcells(working_dir, request).map do |stemcell_path|
-        BoshStemcell.new(stemcell_path)
-      end
-
-      manifest.validate_stemcells(stemcells)
-
-      stemcells.each do |stemcell|
-        manifest.use_stemcell(stemcell)
-        bosh.upload_stemcell(stemcell.path)
-      end
-
       find_releases(working_dir, request).each do |release_path|
         release = BoshRelease.new(release_path)
         manifest.use_release(release)
@@ -39,9 +23,8 @@ module BoshDeploymentResource
       end
 
       new_manifest = manifest.write!
-      no_redact = request.fetch("params")["no_redact"] || false
 
-      bosh.deploy(new_manifest.path,no_redact)
+      bosh.update_runtime_config(new_manifest.path)
 
       response = {
         "version" => {
@@ -49,7 +32,6 @@ module BoshDeploymentResource
           "target" => bosh.target
         },
         "metadata" =>
-          stemcells.map { |s| { "name" => "stemcell", "value" => "#{s.name} v#{s.version}" } } +
           releases.map { |r| { "name" => "release", "value" => "#{r.name} v#{r.version}" } }
       }
 
@@ -61,33 +43,11 @@ module BoshDeploymentResource
     attr_reader :bosh, :manifest, :writer
 
     def validate!(request)
-      request.fetch("source").fetch("deployment") { raise "source must include 'deployment'" }
-
-      deployment_name = request.fetch("source").fetch("deployment")
-      if manifest.name != deployment_name
-        raise "given deployment name '#{deployment_name}' does not match manifest name '#{manifest.name}'"
-      end
-
-      case request.fetch("params")["cleanup"]
-      when nil, true, false
-      else
-        raise "given cleanup value must be a boolean"
-      end
-
-      ["manifest", "stemcells", "releases"].each do |field|
+      ["manifest", "releases"].each do |field|
         request.fetch("params").fetch(field) { raise "params must include '#{field}'" }
       end
 
-      raise "stemcells must be an array of globs" unless enumerable?(request.fetch("params").fetch("stemcells"))
       raise "releases must be an array of globs" unless enumerable?(request.fetch("params").fetch("releases"))
-    end
-
-    def find_stemcells(working_dir, request)
-      globs = request.
-        fetch("params").
-        fetch("stemcells")
-
-      glob(working_dir, globs)
     end
 
     def find_releases(working_dir, request)

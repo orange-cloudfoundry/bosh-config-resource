@@ -6,8 +6,8 @@ require "time"
 
 describe "In Command" do
   let(:response) { StringIO.new }
-  let(:bosh) { instance_double(BoshDeploymentResource::Bosh, download_manifest: nil, target: "") }
-  let(:command) { BoshDeploymentResource::InCommand.new(bosh, response) }
+  let(:bosh) { instance_double(BoshConfigResource::Bosh, download_runtime_config: nil, target: "") }
+  let(:command) { BoshConfigResource::InCommand.new(bosh, response) }
 
   def run_command
     Dir.mktmpdir do |working_dir|
@@ -22,7 +22,7 @@ describe "In Command" do
         "source" => {
           "username" => "bosh-username",
           "password" => "bosh-password",
-          "deployment" => "bosh-deployment",
+          "type" => "runtime_config",
         },
         "version" => {
           "manifest_sha1" => "abcdef"
@@ -50,14 +50,14 @@ describe "In Command" do
 
       it "downloads the manifest" do
         Dir.mktmpdir do |working_dir|
-          expect(bosh).to receive(:download_manifest).with("bosh-deployment", File.join(working_dir, "manifest.yml"))
+          expect(bosh).to receive(:download_runtime_config).with(File.join(working_dir, "manifest.yml"))
           command.run(working_dir, request)
         end
       end
 
       it "writes the target to a file called target" do
         Dir.mktmpdir do |working_dir|
-          expect(bosh).to receive(:download_manifest).with("bosh-deployment", File.join(working_dir, "manifest.yml"))
+          expect(bosh).to receive(:download_runtime_config).with(File.join(working_dir, "manifest.yml"))
           command.run(working_dir, request)
 
           path = File.join(working_dir, "target")
@@ -74,7 +74,7 @@ describe "In Command" do
       end
 
       it "does not try to download the manifest" do
-        expect(bosh).not_to receive(:download_manifest)
+        expect(bosh).not_to receive(:download_runtime_config)
         run_command
       end
 
@@ -100,7 +100,7 @@ describe "In Command" do
           "target" => "http://bosh.example.com",
           "username" => "bosh-username",
           "password" => "bosh-password",
-          "deployment" => "bosh-deployment",
+          "type" => "runtime-config",
         }
       }
     }
