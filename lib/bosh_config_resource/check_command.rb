@@ -10,6 +10,8 @@ module BoshConfigResource
     def run(request)
       versions = []
 
+      STDERR.puts request
+
       if bosh.target != ""
         Dir.mktmpdir do |working_dir|
           manifest_path = File.join(working_dir, "manifest.yml")
