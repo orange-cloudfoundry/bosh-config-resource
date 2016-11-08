@@ -11,7 +11,7 @@ module BoshConfigResource
     def path
       return @file.path if @file
 
-      @file = Tempfile.new("bosh_ca_cert")
+      @file = Tempfile.new('bosh_ca_cert')
       File.write(@file.path, @ca_cert_contents)
 
       @file.path
@@ -22,4 +22,3 @@ module BoshConfigResource
     end
   end
 end
-

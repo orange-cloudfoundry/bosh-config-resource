@@ -3,7 +3,7 @@ require 'time'
 
 module BoshConfigResource
   class OutCommand
-    def initialize(bosh, manifest, writer=STDOUT)
+    def initialize(bosh, manifest, writer = STDOUT)
       @bosh = bosh
       @manifest = manifest
       @writer = writer
@@ -27,12 +27,12 @@ module BoshConfigResource
       bosh.update_runtime_config(new_manifest.path)
 
       response = {
-        "version" => {
-          "manifest_sha1" => manifest.shasum,
-          "target" => bosh.target
+        'version' => {
+          'manifest_sha1' => manifest.shasum,
+          'target' => bosh.target
         },
-        "metadata" =>
-          releases.map { |r| { "name" => "release", "value" => "#{r.name} v#{r.version}" } }
+        'metadata' =>
+          releases.map { |r| { 'name' => 'release', 'value' => "#{r.name} v#{r.version}" } }
       }
 
       writer.puts response.to_json
@@ -43,17 +43,17 @@ module BoshConfigResource
     attr_reader :bosh, :manifest, :writer
 
     def validate!(request)
-      ["manifest", "releases"].each do |field|
-        request.fetch("params").fetch(field) { raise "params must include '#{field}'" }
+      %w(manifest releases).each do |field|
+        request.fetch('params').fetch(field) { raise "params must include '#{field}'" }
       end
 
-      raise "releases must be an array of globs" unless enumerable?(request.fetch("params").fetch("releases"))
+      raise 'releases must be an array of globs' unless enumerable?(request.fetch('params').fetch('releases'))
     end
 
     def find_releases(working_dir, request)
-      globs = request.
-        fetch("params").
-        fetch("releases")
+      globs = request
+              .fetch('params')
+              .fetch('releases')
 
       glob(working_dir, globs)
     end

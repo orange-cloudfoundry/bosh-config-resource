@@ -1,21 +1,21 @@
-require "spec_helper"
+require 'spec_helper'
 
-require "digest"
-require "fileutils"
-require "json"
-require "open3"
-require "tmpdir"
-require "stringio"
+require 'digest'
+require 'fileutils'
+require 'json'
+require 'open3'
+require 'tmpdir'
+require 'stringio'
 
-describe "Out Command" do
-  let(:runtime_config) { instance_double(BoshConfigResource::BoshConfig, use_release: nil, shasum: "1234") }
-  let(:bosh) { instance_double(BoshConfigResource::Bosh, update_runtime_config: nil, upload_release: nil, target: "bosh-target") }
+describe 'Out Command' do
+  let(:runtime_config) { instance_double(BoshConfigResource::BoshConfig, use_release: nil, shasum: '1234') }
+  let(:bosh) { instance_double(BoshConfigResource::Bosh, update_runtime_config: nil, upload_release: nil, target: 'bosh-target') }
   let(:response) { StringIO.new }
   let(:command) { BoshConfigResource::OutCommand.new(bosh, runtime_config, response) }
 
   let(:written_manifest) do
-    file = Tempfile.new("bosh_manifest")
-    file.write("hello world")
+    file = Tempfile.new('bosh_manifest')
+    file.write('hello world')
     file.close
     file
   end
@@ -39,44 +39,41 @@ describe "Out Command" do
   end
 
   def add_default_artifacts(working_dir)
-    cp "spec/fixtures/release.tgz", working_dir, "releases", "release.tgz"
-    cp "spec/fixtures/release.tgz", working_dir, "releases", "other-release.tgz"
-    touch working_dir, "releases", "not-release.txt"
+    cp 'spec/fixtures/release.tgz', working_dir, 'releases', 'release.tgz'
+    cp 'spec/fixtures/release.tgz', working_dir, 'releases', 'other-release.tgz'
+    touch working_dir, 'releases', 'not-release.txt'
   end
 
   before do
     allow(runtime_config).to receive(:write!).and_return(written_manifest)
   end
 
-  let(:request) {
+  let(:request) do
     {
-      "source" => {
-        "target" => "http://bosh.example.com",
-        "username" => "bosh-username",
-        "password" => "bosh-password",
-        "type" => "runtime-config",
+      'source' => {
+        'target' => 'http://bosh.example.com',
+        'username' => 'bosh-username',
+        'password' => 'bosh-password',
+        'type' => 'runtime-config'
       },
-      "params" => {
-        "manifest" => "manifest/deployment.yml",
-        "releases" => [
-          "releases/*.tgz"
+      'params' => {
+        'manifest' => 'manifest/deployment.yml',
+        'releases' => [
+          'releases/*.tgz'
         ]
       }
     }
-  }
+  end
 
-  context "with valid inputs" do
-
-    it "emits the version as the manifest_sha1 and target" do
+  context 'with valid inputs' do
+    it 'emits the version as the manifest_sha1 and target' do
       in_dir do |working_dir|
         add_default_artifacts working_dir
 
         command.run(working_dir, request)
 
-        expect(JSON.parse(response.string)["version"]).to eq({
-          "manifest_sha1" => runtime_config.shasum,
-          "target" => "bosh-target",
-        })
+        expect(JSON.parse(response.string)['version']).to eq('manifest_sha1' => runtime_config.shasum,
+                                                             'target' => 'bosh-target')
       end
     end
 
@@ -121,7 +118,7 @@ describe "Out Command" do
     #   end
     # end
 
-    it "generates a new manifest (with locked down versions and a defaulted director uuid) and deploys it" do
+    it 'generates a new manifest (with locked down versions and a defaulted director uuid) and deploys it' do
       in_dir do |working_dir|
         add_default_artifacts working_dir
 
@@ -134,29 +131,27 @@ describe "Out Command" do
     end
   end
 
-  context "with invalid inputs" do
-    it "requires a manifest" do
+  context 'with invalid inputs' do
+    it 'requires a manifest' do
       in_dir do |working_dir|
         expect do
-          command.run(working_dir, {
-            "source" => {
-              "target" => "http://bosh.example.com",
-              "username" => "bosh-username",
-              "password" => "bosh-password",
-              "type" => "runtime-config",
-            },
-            "params" => {
-              "releases" => []
-            }
-          })
+          command.run(working_dir, 'source' => {
+                        'target' => 'http://bosh.example.com',
+                        'username' => 'bosh-username',
+                        'password' => 'bosh-password',
+                        'type' => 'runtime-config'
+                      },
+                                   'params' => {
+                                     'releases' => []
+                                   })
         end.to raise_error /params must include 'manifest'/
       end
     end
 
-    describe "release globs" do
-      it "errors if a glob resolves to an empty list of files" do
+    describe 'release globs' do
+      it 'errors if a glob resolves to an empty list of files' do
         in_dir do |working_dir|
-          touch working_dir, "releases", "release.rtf"
+          touch working_dir, 'releases', 'release.rtf'
 
           expect do
             command.run(working_dir, request)

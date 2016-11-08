@@ -1,8 +1,8 @@
-require "open3"
-require "yaml"
-require "zlib"
+require 'open3'
+require 'yaml'
+require 'zlib'
 
-require "archive/tar/minitar"
+require 'archive/tar/minitar'
 
 module BoshConfigResource
   class BoshRelease
@@ -11,11 +11,11 @@ module BoshConfigResource
     end
 
     def name
-      manifest.fetch("name")
+      manifest.fetch('name')
     end
 
     def version
-      manifest.fetch("version")
+      manifest.fetch('version')
     end
 
     private
@@ -29,13 +29,13 @@ module BoshConfigResource
 
       Archive::Tar::Minitar::Reader.open(tgz) do |reader|
         reader.each_entry do |entry|
-          next unless File.basename(entry.full_name) == "release.MF"
+          next unless File.basename(entry.full_name) == 'release.MF'
 
           return entry.read
         end
       end
 
-      raise "could not find release.MF"
+      raise 'could not find release.MF'
     ensure
       tgz.close if tgz
     end

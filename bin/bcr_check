@@ -1,16 +1,16 @@
 #!/usr/bin/env ruby
 
-require "json"
+require 'json'
 
 require 'bosh_config_resource'
 
 request = JSON.parse(STDIN.read)
 
-source = request.fetch("source")
-target = source["target"] || ""
+source = request.fetch('source')
+target = source['target'] || ''
 
 auth = BoshConfigResource::Auth.parse(source)
-ca_cert = BoshConfigResource::CaCert.new(source["ca_cert"])
+ca_cert = BoshConfigResource::CaCert.new(source['ca_cert'])
 
 bosh = BoshConfigResource::Bosh.new(
   target,

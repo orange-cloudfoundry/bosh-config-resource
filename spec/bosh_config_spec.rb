@@ -1,45 +1,45 @@
-require "spec_helper"
+require 'spec_helper'
 
-require "yaml"
+require 'yaml'
 
 describe BoshConfigResource::BoshConfig do
-  let(:runtime_config) { BoshConfigResource::BoshConfig.new("spec/fixtures/manifest.yml") }
+  let(:runtime_config) { BoshConfigResource::BoshConfig.new('spec/fixtures/manifest.yml') }
   # let(:cloud_config) { BoshConfigResource::BoshConfig.new("spec/fixtures/bosh_2_manifest.yml") }
 
   let(:resulting_runtime_config) { YAML.load_file(runtime_config.write!) }
   # let(:resulting_cloud_config) { YAML.load_file(cloud_config.write!) }
 
-  it "can replace the releases used in a manifest" do
-    concourse = instance_double(BoshConfigResource::BoshRelease, name: "concourse", version: "1234")
-    garden = instance_double(BoshConfigResource::BoshRelease, name: "garden-linux", version: "9876")
+  it 'can replace the releases used in a manifest' do
+    concourse = instance_double(BoshConfigResource::BoshRelease, name: 'concourse', version: '1234')
+    garden = instance_double(BoshConfigResource::BoshRelease, name: 'garden-linux', version: '9876')
 
     runtime_config.use_release(concourse)
     runtime_config.use_release(garden)
 
-    releases = resulting_runtime_config.fetch("releases")
+    releases = resulting_runtime_config.fetch('releases')
 
     expect(releases).to match_array [
       {
-        "name" => "concourse",
-        "version" => "1234",
+        'name' => 'concourse',
+        'version' => '1234'
       },
       {
-        "name" => "garden-linux",
-        "version" => "9876",
+        'name' => 'garden-linux',
+        'version' => '9876'
       }
     ]
   end
 
   it "errors if a release is called which isn't defined in the manifest releases list" do
-    unfindable_release = double(name: "wrong_name", version: 0)
+    unfindable_release = double(name: 'wrong_name', version: 0)
 
     expect do
       runtime_config.use_release(unfindable_release)
     end.to raise_error /#{unfindable_release.name} can not be found in manifest releases/
   end
 
-  describe "#shasum" do
-    it "outputs the version as the sha of the values of the sorted, parsed manifest" do
+  describe '#shasum' do
+    it 'outputs the version as the sha of the values of the sorted, parsed manifest' do
       # actual = manifest.shasum
       #
       # d = Digest::SHA1.new
