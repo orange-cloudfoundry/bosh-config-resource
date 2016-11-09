@@ -4,7 +4,7 @@ require 'yaml'
 
 describe BoshConfigResource::BoshConfig do
   let(:runtime_config) { BoshConfigResource::BoshConfig.new('spec/fixtures/manifest.yml') }
-  # let(:cloud_config) { BoshConfigResource::BoshConfig.new("spec/fixtures/bosh_2_manifest.yml") }
+  # let(:cloud_config) { BoshConfigResource::BoshConfig.new("spec/fixtures/bosh_2_manifest.yml.pcw") }
 
   let(:resulting_runtime_config) { YAML.load_file(runtime_config.write!) }
   # let(:resulting_cloud_config) { YAML.load_file(cloud_config.write!) }

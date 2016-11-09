@@ -10,21 +10,6 @@ module BoshConfigResource
 
     def run(_working_dir, _request)
       raise 'not implemented'
-      #       raise "no version specified" unless request["version"]
-      #
-      #       if bosh.target != ""
-      #         # deployment_name = request.fetch("source").fetch("deployment")
-      #         # bosh.download_manifest(deployment_name, File.join(working_dir, "manifest.yml"))
-      #         bosh.download_runtime_config(File.join(working_dir, "manifest.yml"))
-      #
-      #         File.open(File.join(working_dir, "target"), "w+") do |f|
-      #           f << bosh.target
-      #         end
-      #       end
-      #
-      #       writer.puts({
-      #         "version" => request.fetch("version")
-      #       }.to_json)
     end
 
     private

@@ -1,14 +1,11 @@
 # BOSH Deployment Resource
 
-An output only resource (at the moment) that will upload stemcells and releases
-and then deploy them.
+An output only resource (at the moment) that will set `runtime-config` and `cloud-config` on a bosh director.
 
 ## Source Configuration
 
-* `deployment`: *Required.* The name of the deployment.
-* `target`: *Optional.* The address of the BOSH director which will be used for
-  the deployment. If omitted, `target_file` must be specified via `out`
-  parameters, as documented below.
+* `type`: *Required.* Must be `runtime-config` or `cloud-config`.
+* `target`: *Required.* The address of the BOSH director.
 
 When using BOSH with default authentication:
 * `username`: *Required.* The username for the BOSH director.
@@ -20,59 +17,46 @@ When using BOSH with [UAA authentication](https://bosh.io/docs/director-users-ua
 
 * `ca_cert`: *Optional.* CA certificate used to validate SSL connections to Director and UAA.
 
-### Example
+#### Resource Specification 
 
 ``` yaml
-- name: staging
-  type: bosh-deployment
+  type: bosh-config
   source:
     target: https://bosh.example.com:25555
     username: admin
     password: admin
-    deployment: staging-deployment-name
+    type: runtime-config
 ```
+
+#### Resource Type Specification
+
+``` yaml
+- name: bosh-config
+  type: docker-image
+  source:
+    repository: dellemcdojo/bosh-config-resource
+```
+
+## Behaviour
+
+### `put`: Update the runtime or cloud config
+
+#### Parameters
+
+* `manifest`: *Required.* Path to the cloud/runtime config manifest.
+
+* `releases`: *Required (`runtime-config` only).* An array of globs that should point to where the
+  releases used in the deployment can be found.
 
 ``` yaml
 - put: staging
   params:
     manifest: path/to/manifest.yml
-    stemcells:
-    - path/to/stemcells-*.tgz
-    - other/path/to/stemcells-*.tgz
     releases:
     - path/to/releases-*.tgz
     - other/path/to/releases-*.tgz
 ```
 
-## Behaviour
+### `get`: NOT SUPPORTED
 
-### `out`: Deploy a BOSH deployment
-
-This will upload any given stemcells and releases, lock them down in the
-deployment manifest and then deploy.
-
-If the manifest does not specify a `director_uuid`, it will be filled in with
-the UUID returned by the targeted director.
-
-#### Parameters
-
-* `manifest`: *Required.* Path to a BOSH deployment manifest file.
-
-* `stemcells`: *Required.* An array of globs that should point to where the
-  stemcells used in the deployment can be found. Stemcell entries in the
-  manifest with version 'latest' will be updated to the actual provided
-  stemcell versions.
-
-* `releases`: *Required.* An array of globs that should point to where the
-  releases used in the deployment can be found.
-
-* `cleanup`: *Optional* An boolean that specifies if a bosh cleanup should be
-  run before deployment. Defaults to false.
-* `no_redact`: *Optional* Removes redacted from Bosh output. Defaults to false.
-* `target_file`: *Optional.* Path to a file containing a BOSH director address.
-  This allows the target to be determined at runtime, e.g. by acquiring a BOSH
-  lite instance using the [Pool
-  resource](https://github.com/concourse/pool-resource).
-
-  If both `target_file` and `target` are specified, `target_file` takes
-  precedence.
+Using `get` for this resource type will result in an error.  If you have a reasonable use case for `get` of a config, please let us know in a github issue.

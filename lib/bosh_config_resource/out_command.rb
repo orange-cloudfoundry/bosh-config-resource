@@ -12,28 +12,48 @@ module BoshConfigResource
     def run(working_dir, request)
       validate! request
 
-      releases = []
-      find_releases(working_dir, request).each do |release_path|
-        release = BoshRelease.new(release_path)
-        manifest.use_release(release)
+      if request.fetch('source').fetch('type') == "runtime-config"
 
-        bosh.upload_release(release_path)
+        releases = []
+        find_releases(working_dir, request).each do |release_path|
 
-        releases << release
+          release = BoshRelease.new(release_path)
+          manifest.use_release(release)
+          bosh.upload_release(release_path)
+
+          releases << release
+        end
+
+        new_manifest = manifest.write!
+
+        bosh.update_runtime_config(new_manifest.path)
+
+        response = {
+            'version' => {
+                'manifest_sha1' => manifest.shasum,
+                'target' => bosh.target
+            },
+            'metadata' =>
+                releases.map { |r| { 'name' => 'release', 'value' => "#{r.name} v#{r.version}" } }
+        }
+
+      elsif request.fetch('source').fetch('type') == "cloud-config"
+
+        new_manifest = manifest.write!
+
+        bosh.update_cloud_config(new_manifest.path)
+
+        response = {
+            'version' => {
+                'manifest_sha1' => manifest.shasum,
+                'target' => bosh.target
+            }
+        }
+
+      else
+        raise "'source.type' must equal 'runtime-config' or 'cloud-config'"
       end
 
-      new_manifest = manifest.write!
-
-      bosh.update_runtime_config(new_manifest.path)
-
-      response = {
-        'version' => {
-          'manifest_sha1' => manifest.shasum,
-          'target' => bosh.target
-        },
-        'metadata' =>
-          releases.map { |r| { 'name' => 'release', 'value' => "#{r.name} v#{r.version}" } }
-      }
 
       writer.puts response.to_json
     end

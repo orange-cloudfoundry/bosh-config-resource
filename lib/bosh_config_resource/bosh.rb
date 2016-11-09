@@ -13,46 +13,17 @@ module BoshConfigResource
       @command_runner = command_runner
     end
 
-    # def upload_stemcell(path)
-    #   bosh("upload stemcell #{path} --skip-if-exists")
-    # end
-
     def upload_release(path)
       bosh("upload release #{path} --skip-if-exists")
     end
-
-    # def deploy(manifest_path,no_redact=false)
-    #   if no_redact
-    #       bosh("-d #{manifest_path} deploy --no-redact")
-    #   else
-    #       bosh("-d #{manifest_path} deploy")
-    #   end
-    # end
 
     def update_runtime_config(manifest_path)
       bosh("update runtime-config #{manifest_path}")
     end
 
-    def download_runtime_config(manifest_path)
-      bosh("runtime-config > #{manifest_path}")
+    def update_cloud_config(manifest_path)
+      bosh("update cloud-config #{manifest_path}")
     end
-
-    # def download_manifest(deployment_name, manifest_path)
-    #   bosh("download manifest #{deployment_name} #{manifest_path}")
-    # end
-
-    # def cleanup
-    #   bosh("cleanup")
-    # end
-
-    # def director_uuid
-    #   r, w = IO.pipe
-    #   bosh("status --uuid", out: w)
-    #   r.gets.strip
-    # ensure
-    #   r.close
-    #   w.close
-    # end
 
     private
 

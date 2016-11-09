@@ -1,29 +1,12 @@
----
-name: concourse
-
 releases:
-  - name: concourse
-    version: latest
-  - name: garden-linux
-    version: latest
+- {name: concourse, version: 123}
+- {name: garden-linux, version: 987}
 
-resource_pools:
-  - name: fast
-    stemcell:
-      name: bosh-warden-boshlite-ubuntu-trusty-go_agent
-      version: latest
-
-  - name: other-fast
-    stemcell:
-      name: bosh-warden-boshlite-ubuntu-trusty-go_agent
-      version: latest
-
-  - name: slow
-    stemcell:
-      name: bosh-warden-boshlite-ubuntu-trusty-ruby_agent
-      version: latest
-
-  - name: non-latest
-    stemcell:
-      name: bosh-warden-boshlite-ubuntu-trusty-ruby_agent
-      version: 1000
+addons:
+- name: security
+  jobs:
+  - name: tsa
+    release: concourse
+  properties:
+    strongswan:
+      key: value

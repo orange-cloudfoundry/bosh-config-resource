@@ -1,0 +1,7 @@
+---
+networks:
+- name: vip
+  type: vip
+compilation:
+  workers: 1
+  network: vip

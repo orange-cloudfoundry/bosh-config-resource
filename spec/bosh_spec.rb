@@ -59,11 +59,11 @@ describe BoshConfigResource::Bosh do
     end
   end
 
-  describe '.download_runtime_config' do
-    it 'runs the command to download runtime config' do
-      expect(command_runner).to receive(:run).with(%(bosh -n --color -t #{target} runtime-config > /path/to/a/manifest.yml), { 'BOSH_USER' => username, 'BOSH_PASSWORD' => password }, {})
+  describe '.update_cloud_config' do
+    it 'runs the command to set cloud config' do
+      expect(command_runner).to receive(:run).with(%(bosh -n --color -t #{target} update cloud-config /path/to/a/manifest.yml), { 'BOSH_USER' => username, 'BOSH_PASSWORD' => password }, {})
 
-      bosh.download_runtime_config('/path/to/a/manifest.yml')
+      bosh.update_cloud_config('/path/to/a/manifest.yml')
     end
   end
 
