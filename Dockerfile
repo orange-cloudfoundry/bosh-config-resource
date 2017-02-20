@@ -2,11 +2,18 @@ FROM concourse/buildroot:ruby
 
 ADD gems /tmp/gems
 
-RUN gem install /tmp/gems/*.gem --no-document && \
-    wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.1-linux-amd64 -O bosh-cli && \
+
+
+RUN gem install /tmp/gems/*.gem --no-document
+
+RUN apk --update upgrade && \
+    apk add curl ca-certificates && \
+    update-ca-certificates && \
+    rm -rf /var/cache/apk/*
+
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.1-linux-amd64 -O bosh-cli && \
     chmod +x bosh-cli && \
     mv bosh-cli /usr/local/bin/bosh
-
 
 ADD . /tmp/resource-gem
 
