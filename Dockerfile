@@ -3,7 +3,10 @@ FROM concourse/buildroot:ruby
 ADD gems /tmp/gems
 
 RUN gem install /tmp/gems/*.gem --no-document && \
-    gem install bosh_cli -v 1.3262.4.0 --no-document
+    wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.1-linux-amd64 -O bosh-cli && \
+    chmod +x bosh-cli && \
+    mv bosh-cli /usr/local/bin/bosh
+
 
 ADD . /tmp/resource-gem
 
